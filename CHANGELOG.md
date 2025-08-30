@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/WittF/docker-multi-java/compare/v1.2.0...v1.2.1) (2025-08-30)
+
+
+### 🐛 修复
+
+* 移除可能包含敏感信息的image-tags输出 ([66334db](https://github.com/WittF/docker-multi-java/commit/66334db046c372dcd25bb5033c3dad6b091cc7f9))
+
 ## [1.2.0](https://github.com/WittF/docker-multi-java/compare/v1.1.0...v1.2.0) (2025-08-30)
 
 
