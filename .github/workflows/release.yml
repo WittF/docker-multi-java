@@ -42,18 +42,16 @@ jobs:
           cache: 'npm'
 
       - name: 安装依赖
-        run: |
-          npm install -g semantic-release
-          npm install -g @semantic-release/changelog
-          npm install -g @semantic-release/git
-          npm install -g @semantic-release/github
-          npm install -g @semantic-release/commit-analyzer
-          npm install -g @semantic-release/release-notes-generator
-          npm install -g conventional-changelog-conventionalcommits
+        run: npm ci
 
       - name: 运行语义化发布
         id: semantic
-        run: npx semantic-release
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          semantic_version: 22
+          extra_plugins: |
+            @semantic-release/changelog@6.0.3
+            @semantic-release/git@10.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_AUTHOR_NAME: github-actions[bot]
