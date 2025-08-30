@@ -1,3 +1,15 @@
+## [1.1.0](https://github.com/WittF/docker-multi-java/compare/v1.0.1...v1.1.0) (2025-08-30)
+
+
+### 🚀 新功能
+
+* 优化发布流程 - 避免重复构建，添加Docker镜像压缩包到Release ([0df0b6b](https://github.com/WittF/docker-multi-java/commit/0df0b6b35e2510134c42c52602dfcdf180a33368))
+
+
+### 🐛 修复
+
+* 修复GitHub Actions权限问题 ([535ba19](https://github.com/WittF/docker-multi-java/commit/535ba19e4a59d796b4893c3308fba2237a817fad))
+
 ## [1.0.1](https://github.com/WittF/docker-multi-java/compare/v1.0.0...v1.0.1) (2025-08-30)
 
 
