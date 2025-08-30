@@ -17,7 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     
     permissions:
-      contents: read
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
       
     outputs:
       new_release_published: ${{ steps.semantic.outputs.new_release_published }}
@@ -31,6 +34,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 设置 Git 配置
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
@@ -49,6 +58,10 @@ jobs:
           dry_run: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
 
   # 🏗️ 统一构建和发布Docker镜像到两个仓库
   build-and-push:
@@ -204,6 +217,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
+      - name: 设置 Git 配置
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -219,17 +238,23 @@ jobs:
           name: docker-image-${{ needs.version-check.outputs.new_release_version }}
           path: ./artifacts/
 
-      - name: 📋 准备Release资产文件
+      - name: 📋 准备Release资产文件  
         run: |
           VERSION="${{ needs.version-check.outputs.new_release_version }}"
           echo "📋 准备Release资产文件..."
           
-          # 移动镜像文件到根目录
-          mv ./artifacts/multi-java-${VERSION}-amd64.tar.gz ./
+          # 移动镜像文件到根目录，并重命名为通用模式
+          if [ -f "./artifacts/multi-java-${VERSION}-amd64.tar.gz" ]; then
+            mv "./artifacts/multi-java-${VERSION}-amd64.tar.gz" "./multi-java-${VERSION}-amd64.tar.gz"
+            echo "✅ 镜像文件已准备: multi-java-${VERSION}-amd64.tar.gz"
+          else
+            echo "⚠️ 镜像文件未找到"
+            ls -la ./artifacts/ || echo "artifacts目录不存在"
+          fi
           
           # 显示所有资产文件
           echo "📦 将包含在Release中的文件:"
-          ls -la multi-java-${VERSION}-amd64.tar.gz CHANGELOG.md Dockerfile package.json
+          ls -la *.tar.gz CHANGELOG.md Dockerfile package.json 2>/dev/null || echo "某些文件可能不存在"
 
       - name: 🎉 创建GitHub Release
         uses: cycjimmy/semantic-release-action@v4

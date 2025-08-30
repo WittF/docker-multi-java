@@ -80,29 +80,12 @@
       "@semantic-release/github",
       {
         "assets": [
-          {
-            "path": "CHANGELOG.md",
-            "label": "Changelog",
-            "name": "CHANGELOG.md"
-          },
-          {
-            "path": "Dockerfile",
-            "label": "Dockerfile - 多版本Java容器构建文件", 
-            "name": "Dockerfile"
-          },
-          {
-            "path": "package.json",
-            "label": "Package Configuration",
-            "name": "package.json"
-          },
-          {
-            "path": "multi-java-${nextRelease.version}-amd64.tar.gz",
-            "label": "Docker镜像压缩包 - 离线安装使用",
-            "name": "multi-java-${nextRelease.version}-amd64.tar.gz"
-          }
+          "CHANGELOG.md",
+          "Dockerfile", 
+          "package.json",
+          "multi-java-*.tar.gz"
         ],
-        "releaseNotesFile": "RELEASE_NOTES.md",
-        "discussionCategoryName": "Announcements"
+
       }
     ],
     [
