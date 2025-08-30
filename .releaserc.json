@@ -22,16 +22,48 @@
             "release": "patch"
           },
           {
+            "type": "refactor",
+            "release": "patch"
+          },
+          {
+            "type": "style",
+            "release": "patch"
+          },
+          {
+            "type": "revert",
+            "release": "patch"
+          },
+          {
+            "type": "security",
+            "release": "patch"
+          },
+          {
+            "type": "deps",
+            "release": "patch"
+          },
+          {
+            "type": "improvement",
+            "release": "patch"
+          },
+          {
             "type": "build",
             "release": "patch"
           },
           {
+            "type": "breaking",
+            "release": "major"
+          },
+          {
+            "breaking": true,
+            "release": "major"
+          },
+          {
             "type": "docs",
-            "release": false
+            "release": "patch"
           },
           {
             "type": "chore",
-            "release": false
+            "release": "patch"
           },
           {
             "type": "test",
@@ -63,8 +95,44 @@
               "section": "⚡ 性能优化"
             },
             {
+              "type": "refactor",
+              "section": "♻️ 重构"
+            },
+            {
+              "type": "style",
+              "section": "💄 代码格式"
+            },
+            {
+              "type": "security",
+              "section": "🔒 安全修复"
+            },
+            {
+              "type": "deps",
+              "section": "⬆️ 依赖更新"
+            },
+            {
+              "type": "improvement",
+              "section": "✨ 改进"
+            },
+            {
               "type": "build",
               "section": "📦 构建优化"
+            },
+            {
+              "type": "revert",
+              "section": "⏪ 撤销更改"
+            },
+            {
+              "type": "breaking",
+              "section": "💥 重大变更"
+            },
+            {
+              "type": "docs",
+              "section": "📚 文档更新"
+            },
+            {
+              "type": "chore",
+              "section": "🔧 日常维护"
             }
           ]
         }
