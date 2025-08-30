@@ -1,3 +1,10 @@
+## [1.2.0](https://github.com/WittF/docker-multi-java/compare/v1.1.0...v1.2.0) (2025-08-30)
+
+
+### 🚀 新功能
+
+* 更新README.md，添加Docker镜像拉取命令示例 ([def34f2](https://github.com/WittF/docker-multi-java/commit/def34f25c628f800499e63c684da9e3d3b789439))
+
 ## [1.1.0](https://github.com/WittF/docker-multi-java/compare/v1.0.1...v1.1.0) (2025-08-30)
 
 
