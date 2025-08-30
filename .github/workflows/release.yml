@@ -146,7 +146,6 @@ jobs:
     
     outputs:
       image-digest: ${{ steps.push.outputs.digest }}
-      image-tags: ${{ steps.meta.outputs.tags }}
 
     steps:
       - name: 检出代码
