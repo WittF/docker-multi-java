@@ -15,5 +15,11 @@ Java 8, 11, 17, 21, 24 (Azul Zulu JDK)，默认Java 17
 - `java-current` - 显示当前配置详情
 
 **镜像发布地址:**
-- GitHub Container Registry: `ghcr.io/wittf/multi-java:latest`
-- Docker Hub: `wittf/multi-java:latest`
+- GitHub Container Registry:
+```
+docker pull ghcr.io/wittf/multi-java:latest
+```
+- Docker Hub:
+```
+docker pull wittf/multi-java:latest
+```
