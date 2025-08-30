@@ -1,0 +1,33 @@
+{
+  "name": "multi-java",
+  "version": "1.0.0",
+  "description": "多版本Java Docker镜像，支持Java 8/11/17/21/24",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WittF/docker-multi-java.git"
+  },
+  "keywords": [
+    "java",
+    "docker",
+    "minecraft",
+    "multi-version",
+    "azul-zulu"
+  ],
+  "author": "wittf",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "docker build -t multi-java .",
+    "test": "docker run --rm multi-java java-list && docker run --rm multi-java java21 -version",
+    "release": "semantic-release"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^11.0.0", 
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.0.0",
+    "@semantic-release/release-notes-generator": "^12.0.0",
+    "conventional-changelog-conventionalcommits": "^7.0.2",
+    "semantic-release": "^22.0.0"
+  }
+}
