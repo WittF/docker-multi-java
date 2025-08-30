@@ -84,8 +84,7 @@
           "Dockerfile", 
           "package.json",
           "multi-java-*.tar.gz"
-        ],
-
+        ]
       }
     ],
     [

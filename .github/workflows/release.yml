@@ -63,9 +63,79 @@ jobs:
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
 
-  # 🏗️ 统一构建和发布Docker镜像到两个仓库
-  build-and-push:
+  # 🏗️ 构建和本地测试Docker镜像
+  build-and-test:
     needs: version-check
+    if: needs.version-check.outputs.new_release_published == 'true'
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    outputs:
+      image-tag: multi-java:${{ needs.version-check.outputs.new_release_version }}
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3.0.0
+
+      - name: 🏗️ 构建Docker镜像
+        run: |
+          VERSION="${{ needs.version-check.outputs.new_release_version }}"
+          
+          echo "🏗️ 构建Docker镜像: multi-java:${VERSION}"
+          docker build -t multi-java:${VERSION} .
+          
+          echo "✅ 镜像构建完成"
+
+      - name: 🧪 测试镜像功能
+        run: |
+          VERSION="${{ needs.version-check.outputs.new_release_version }}"
+          IMAGE="multi-java:${VERSION}"
+          
+          echo "🧪 测试镜像: ${IMAGE}"
+          
+          echo "📋 测试java-list命令..."
+          docker run --rm ${IMAGE} java-list
+          
+          echo "☕ 测试Java 21..."
+          docker run --rm ${IMAGE} java21 -version | head -1
+          
+          echo "☕ 测试Java 8..."
+          docker run --rm ${IMAGE} java8 -version | head -1
+          
+          echo "☕ 测试Java 17 (默认)..."
+          docker run --rm ${IMAGE} java -version | head -1
+          
+          echo "🔄 测试版本切换..."
+          docker run --rm ${IMAGE} sh -c "java-change 21 && java -version | head -1"
+          
+          echo "✅ 所有功能测试通过！"
+
+      - name: 📦 导出Docker镜像为压缩文件
+        run: |
+          VERSION="${{ needs.version-check.outputs.new_release_version }}"
+          
+          echo "📦 正在导出镜像为tar.gz文件..."
+          docker save multi-java:${VERSION} | gzip > multi-java-${VERSION}-amd64.tar.gz
+          
+          echo "📊 导出文件信息:"
+          ls -lh multi-java-${VERSION}-amd64.tar.gz
+          echo "✅ Docker镜像导出完成"
+
+      - name: 📤 上传镜像文件为Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-${{ needs.version-check.outputs.new_release_version }}
+          path: multi-java-${{ needs.version-check.outputs.new_release_version }}-amd64.tar.gz
+          retention-days: 30
+          compression-level: 0
+  # 🚀 推送镜像到容器仓库
+  push-to-registries:
+    needs: [version-check, build-and-test]
     if: needs.version-check.outputs.new_release_published == 'true'
     runs-on: ubuntu-latest
     
@@ -75,7 +145,7 @@ jobs:
       id-token: write
     
     outputs:
-      image-digest: ${{ steps.build-and-push.outputs.digest }}
+      image-digest: ${{ steps.push.outputs.digest }}
       image-tags: ${{ steps.meta.outputs.tags }}
 
     steps:
@@ -123,8 +193,8 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created={{date 'YYYY-MM-DDTHH:mm:ssZ'}}
 
-      - name: 🏗️ 构建并推送到两个仓库
-        id: build-and-push
+      - name: 🚀 构建并推送到两个仓库
+        id: push
         uses: docker/build-push-action@v5.0.0
         with:
           context: .
@@ -139,68 +209,16 @@ jobs:
       - name: 🔐 签名 Docker 镜像
         env:
           TAGS: ${{ steps.meta.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          DIGEST: ${{ steps.push.outputs.digest }}
         run: |
           echo "🔐 为以下镜像添加数字签名..."
           echo "${TAGS}"
           echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
           echo "✅ 镜像签名完成！用户可使用 'cosign verify' 验证镜像真实性"
 
-      - name: 📦 导出Docker镜像为压缩文件
-        run: |
-          VERSION="${{ needs.version-check.outputs.new_release_version }}"
-          
-          echo "📦 正在导出镜像为tar.gz文件..."
-          
-          # 导出GHCR镜像
-          docker pull ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME }}:${VERSION}
-          docker save ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME }}:${VERSION} | gzip > multi-java-${VERSION}-amd64.tar.gz
-          
-          # 显示文件信息
-          echo "📊 导出文件信息:"
-          ls -lh multi-java-${VERSION}-amd64.tar.gz
-          echo "✅ Docker镜像导出完成: multi-java-${VERSION}-amd64.tar.gz"
-
-      - name: 📤 上传镜像文件为Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-image-${{ needs.version-check.outputs.new_release_version }}
-          path: multi-java-${{ needs.version-check.outputs.new_release_version }}-amd64.tar.gz
-          retention-days: 30
-          compression-level: 0
-  # 🧪 测试发布的镜像
-  test-images:
-    needs: [version-check, build-and-push]
-    if: needs.version-check.outputs.new_release_published == 'true'
-    runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        registry: [ghcr.io, docker.io]
-    
-    steps:
-      - name: 🧪 测试 ${{ matrix.registry }} 镜像功能
-        run: |
-          IMAGE="${{ matrix.registry }}/${{ env.IMAGE_NAME }}:${{ needs.version-check.outputs.new_release_version }}"
-          echo "🧪 测试镜像: $IMAGE"
-          
-          echo "📋 测试java-list命令..."
-          docker run --rm $IMAGE java-list
-          
-          echo "☕ 测试Java 21..."
-          docker run --rm $IMAGE java21 -version | head -1
-          
-          echo "☕ 测试Java 8..."
-          docker run --rm $IMAGE java8 -version | head -1
-          
-          echo "☕ 测试Java 17 (默认)..."
-          docker run --rm $IMAGE java -version | head -1
-          
-          echo "✅ ${{ matrix.registry }} 镜像测试通过！"
-
   # 🎉 创建GitHub Release
   create-release:
-    needs: [version-check, build-and-push, test-images]
+    needs: [version-check, build-and-test, push-to-registries]
     if: needs.version-check.outputs.new_release_published == 'true'
     runs-on: ubuntu-latest
     
